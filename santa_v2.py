@@ -1,14 +1,14 @@
 import streamlit as st
 import random
-from streamlit.components.v1 import html
+import hashlib
 
-# Secret Santa participants (you can customize this list)
+# Secret Santa participants
 PARTICIPANTS = [
     "Alice", "Bob", "Charlie", "Diana", "Eve", 
     "Frank", "Grace", "Henry", "Ivy", "Jack"
 ]
 
-# Fixed Christmas Theme CSS - Forces proper background & readability
+# Fixed Christmas Theme CSS
 css = """
 <style>
     /* Force full override of Streamlit default styles */
@@ -44,7 +44,6 @@ css = """
     
     @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Dancing+Script:wght@700&display=swap');
     
-    /* Christmas Lights */
     .light {
         position: fixed;
         border-radius: 50%;
@@ -60,7 +59,6 @@ css = """
         50% { opacity: 1; transform: scale(1.4); }
     }
     
-    /* Main Santa Container */
     .santa-container {
         max-width: 700px;
         margin: 2rem auto;
@@ -90,7 +88,6 @@ css = """
         box-shadow: 0 2px 15px rgba(220,38,38,0.5);
     }
     
-    /* Title */
     .title {
         font-size: 4rem;
         font-family: 'Dancing Script', cursive;
@@ -118,8 +115,7 @@ css = """
         font-family: 'Poppins', sans-serif;
     }
     
-    /* Name Input */
-    .name-input {
+    .name-input, .pin-input {
         width: 100%;
         padding: 1.5rem 2rem;
         font-size: 1.8rem;
@@ -130,14 +126,13 @@ css = """
             0 25px 50px rgba(0,0,0,0.3),
             inset 0 2px 10px rgba(255,255,255,0.8);
         text-align: center;
-        margin-bottom: 3rem;
+        margin-bottom: 2rem;
         font-family: 'Poppins', sans-serif;
         font-weight: 600;
-        transition: all 0.4s ease;
         color: #1e293b;
     }
     
-    .name-input:focus {
+    .name-input:focus, .pin-input:focus {
         border-color: #fefce8 !important;
         box-shadow: 
             0 30px 60px rgba(254,252,232,0.4),
@@ -145,36 +140,30 @@ css = """
         transform: scale(1.02);
     }
     
-    /* Reveal Button */
-    .reveal-btn {
+    .reveal-btn, .status-btn, .check-btn {
         background: linear-gradient(45deg, #dc2626, #ff6b35, #ffd23f);
         border: none;
-        padding: 1.6rem 4rem;
-        font-size: 1.6rem;
-        font-weight: 800;
+        padding: 1.4rem 3rem;
+        font-size: 1.4rem;
+        font-weight: 700;
         border-radius: 50px;
         color: #1e293b;
         cursor: pointer;
         box-shadow: 
-            0 30px 60px rgba(220,38,38,0.6),
+            0 25px 50px rgba(220,38,38,0.6),
             inset 0 2px 10px rgba(255,255,255,0.4);
-        transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        transition: all 0.4s ease;
         font-family: 'Poppins', sans-serif;
-        text-transform: uppercase;
-        letter-spacing: 1.5px;
-        position: relative;
-        overflow: hidden;
+        margin: 0.5rem;
     }
     
-    .reveal-btn:hover {
-        transform: translateY(-12px);
+    .reveal-btn:hover, .status-btn:hover, .check-btn:hover {
+        transform: translateY(-8px);
         box-shadow: 
-            0 40px 80px rgba(220,38,38,0.8),
+            0 35px 70px rgba(220,38,38,0.8),
             inset 0 2px 15px rgba(255,255,255,0.5);
-        color: #1e293b;
     }
     
-    /* Reveal Box */
     .reveal-box {
         background: linear-gradient(145deg, #fefce8, #ffffff, #fefce8);
         padding: 4rem 3rem;
@@ -205,7 +194,6 @@ css = """
         100% { opacity: 1; transform: scale(1) rotateY(0deg); }
     }
     
-    /* Invalid Box */
     .invalid-box {
         background: linear-gradient(145deg, #dc2626, #b91c1c);
         padding: 3rem;
@@ -215,18 +203,17 @@ css = """
         font-size: 1.9rem;
         font-weight: 800;
         box-shadow: 0 30px 70px rgba(220,38,38,0.7);
-        animation: shake 0.8s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+        animation: shake 0.8s ease-in-out both;
         text-align: center;
         border: 4px solid rgba(255,255,255,0.4);
     }
     
     @keyframes shake {
-        0%, 100% { transform: translateX(0) rotate(0deg); }
-        10%, 30%, 50%, 70%, 90% { transform: translateX(-20px) rotate(-3deg); }
-        20%, 40%, 60%, 80% { transform: translateX(20px) rotate(3deg); }
+        0%, 100% { transform: translateX(0); }
+        10%, 30%, 50%, 70%, 90% { transform: translateX(-15px); }
+        20%, 40%, 60%, 80% { transform: translateX(15px); }
     }
     
-    /* Valid Names List */
     .valid-names {
         background: linear-gradient(145deg, rgba(34,197,94,0.3), rgba(34,197,94,0.1));
         padding: 2rem;
@@ -238,7 +225,15 @@ css = """
         box-shadow: 0 15px 40px rgba(34,197,94,0.4);
     }
     
-    /* Snowflakes */
+    .status-card {
+        background: linear-gradient(145deg, rgba(255,255,255,0.2), rgba(255,255,255,0.05));
+        padding: 2rem;
+        border-radius: 20px;
+        margin: 1rem 0;
+        border: 1px solid rgba(255,255,255,0.2);
+        color: #f8fafc;
+    }
+    
     .snowflake {
         color: #ffffff;
         text-shadow: 0 0 20px rgba(255,255,255,0.9);
@@ -254,76 +249,67 @@ css = """
     @keyframes fall {
         to { transform: translateY(120vh) rotate(1080deg); }
     }
-    
-    /* Hide Streamlit metrics */
-    [data-testid="stMetric"] { display: none !important; }
 </style>
 """
 
+def generate_pin(name):
+    """Generate 4-digit PIN from name + timestamp"""
+    seed = f"{name}{random.randint(1000, 9999)}"
+    return str(int(hashlib.md5(seed.encode()).hexdigest(), 16) % 10000).zfill(4)
+
 def create_christmas_effects():
-    """Create enhanced Christmas effects"""
     effects_html = ""
-    
-    # Red-Green Christmas lights in fixed positions
     light_positions = [
         ("5%", "5%", "#dc2626"), ("95%", "5%", "#22c55e"),
         ("5%", "95%", "#ff6b35"), ("95%", "95%", "#16a34a"),
         ("50%", "2%", "#ffd23f"), ("2%", "50%", "#ef4444"),
-        ("98%", "50%", "#059669"), ("50%", "98%", "#dc2626"),
-        ("20%", "20%", "#f97316"), ("80%", "80%", "#51cf66")
+        ("98%", "50%", "#059669"), ("50%", "98%", "#dc2626")
     ]
     
     for top, left, color in light_positions:
         effects_html += f"""
         <div class="light" style="
-            --top: {top};
-            --left: {left};
+            --top: {top}; --left: {left};
             width: 35px; height: 35px;
             background: {color};
             animation-duration: {random.uniform(1.5, 3.5)}s;
         "></div>
         """
     
-    # Enhanced snowflakes
     for i in range(80):
-        left = f"{random.randint(0, 100)}vw"
-        delay = f"{random.uniform(0, 8)}s"
-        duration = f"{random.uniform(15, 35)}s"
-        size = random.choice(["1.8rem", "2.2rem", "2.8rem", "1.5rem"])
         effects_html += f"""
         <div class="snowflake" style="
-            left: {left};
-            animation-delay: {delay};
-            animation-duration: {duration};
-            font-size: {size};
+            left: {random.randint(0, 100)}vw;
+            animation-delay: {random.uniform(0, 8)}s;
+            animation-duration: {random.uniform(15, 35)}s;
+            font-size: {random.choice(['1.8rem', '2.2rem', '2.8rem', '1.5rem'])};
         ">❄️</div>
         """
-    
     return effects_html
 
 def is_valid_participant(name, participants):
     return name.strip().lower() in [p.lower() for p in participants]
 
 def main():
-    # Apply CSS first
     st.markdown(css, unsafe_allow_html=True)
-    
-    # Add Christmas effects
     st.markdown(create_christmas_effects(), unsafe_allow_html=True)
     
-    # Session state
-    for key in ['revealed', 'user_name', 'invalid_shown']:
+    # Initialize session state
+    for key in ['revealed', 'user_name', 'secret_santa', 'invalid_shown', 'pin_generated', 'draw_status']:
         if key not in st.session_state:
-            st.session_state[key] = False if key != 'user_name' else ""
+            st.session_state[key] = False if key != 'user_name' and key != 'draw_status' else ""
+    if 'participants_data' not in st.session_state:
+        st.session_state.participants_data = {}
     
-    # Main content container
     st.markdown('<div class="santa-container">', unsafe_allow_html=True)
     
-    if not st.session_state.revealed:
+    # Navigation tabs
+    tab1, tab2 = st.tabs(["🎅 Draw Secret Santa", "📋 Check Status"])
+    
+    with tab1:
         st.markdown('<h1 class="title">🎅 Secret Santa 🎁</h1>', unsafe_allow_html=True)
         st.markdown('<p class="subtitle">Ho Ho Ho! Enter your name to discover who drew YOU! ✨</p>', unsafe_allow_html=True)
         
-        # Valid participants list
         st.markdown(f"""
         <div class="valid-names">
             <strong>🎄 Valid Participants:</strong><br>
@@ -331,54 +317,109 @@ def main():
         </div>
         """, unsafe_allow_html=True)
         
-        name = st.text_input("", 
-                           placeholder="👤 Enter your name here...",
-                           key="name_input",
-                           help="Type your name exactly as listed above!")
+        name = st.text_input("", placeholder="👤 Enter your name here...", key="name_input")
         
-        if st.button("🎊 REVEAL MY SECRET SANTA 🎊", key="reveal_btn", help="Click to discover!"):
-            if name.strip():
-                if is_valid_participant(name, PARTICIPANTS):
-                    st.session_state.user_name = name.strip()
-                    st.session_state.invalid_shown = False
-                    
-                    other_names = [n for n in PARTICIPANTS if n.lower() != name.lower()]
-                    secret_santa = random.choice(other_names)
-                    st.session_state.secret_santa = secret_santa
-                    st.session_state.revealed = True
-                    st.rerun()
+        col1, col2 = st.columns([1, 1])
+        with col1:
+            if st.button("🎊 REVEAL MY SECRET SANTA 🎊", key="reveal_btn"):
+                if name.strip():
+                    if is_valid_participant(name, PARTICIPANTS):
+                        if not st.session_state.participants_data.get(name, {}).get('drawn', False):
+                            st.session_state.user_name = name.strip()
+                            st.session_state.invalid_shown = False
+                            
+                            other_names = [n for n in PARTICIPANTS if n.lower() != name.lower()]
+                            secret_santa = random.choice(other_names)
+                            pin = generate_pin(name)
+                            
+                            st.session_state.secret_santa = secret_santa
+                            st.session_state.pin_generated = pin
+                            st.session_state.participants_data[name] = {
+                                'secret_santa': secret_santa,
+                                'pin': pin,
+                                'drawn': True
+                            }
+                            st.session_state.revealed = True
+                            st.rerun()
+                        else:
+                            st.session_state.invalid_shown = True
+                            st.session_state.user_name = name.strip()
+                            st.markdown("""
+                            <div class="invalid-box">
+                                ❌ You have already drawn your Secret Santa! 
+                                <br>Go to <strong>Check Status</strong> tab with your PIN. 🎅
+                            </div>
+                            """, unsafe_allow_html=True)
+                    else:
+                        st.session_state.invalid_shown = True
+                        st.session_state.user_name = name.strip()
+                        st.markdown(f"""
+                        <div class="invalid-box">
+                            ❌ <strong>{name}</strong> is not a valid participant!<br>
+                            🎅 Please check the list above and try again! 🎅
+                        </div>
+                        """, unsafe_allow_html=True)
                 else:
-                    st.session_state.invalid_shown = True
-                    st.session_state.user_name = name.strip()
-                    st.rerun()
-            else:
-                st.error("🎄 Please enter your name first!")
+                    st.error("🎄 Please enter your name first!")
         
-        if st.session_state.invalid_shown and st.session_state.user_name:
+        if st.session_state.revealed:
             st.markdown(f"""
-            <div class="invalid-box">
-                ❌ <strong>{st.session_state.user_name}</strong> is not a valid participant!<br>
-                🎅 Please check the list above and try again! 🎅
+            <div class="reveal-box">
+                <div style="font-size: 1.6rem; margin-bottom: 1.5rem; font-weight: 600;">
+                    Hey <strong>{st.session_state.user_name}</strong>!
+                </div>
+                Your Secret Santa is...<br>
+                <strong style="font-size: 4rem; color: #dc2626;">{st.session_state.secret_santa}</strong>! 🎁✨🎅
+                <div style="font-size: 1.2rem; margin-top: 2rem; color: #64748b;">
+                    📌 <strong>Your PIN: {st.session_state.pin_generated}</strong><br>
+                    Save this PIN to check status later!
+                </div>
             </div>
             """, unsafe_allow_html=True)
             
-    else:
-        st.markdown(f"""
-        <div class="reveal-box">
-            <div style="font-size: 1.6rem; margin-bottom: 1.5rem; font-weight: 600;">
-                Hey <strong>{st.session_state.user_name}</strong>!
-            </div>
-            Your Secret Santa is...<br>
-            <strong style="font-size: 4rem; color: #dc2626;">{st.session_state.secret_santa}</strong>! 🎁✨🎅
+            st.markdown('<p class="subtitle" style="margin-top: 3rem;">Use your PIN in the Status tab! 🎄❄️</p>', unsafe_allow_html=True)
+            
+            if st.button("🔄 Try Another Name", key="reset_tab1"):
+                st.session_state.revealed = False
+                st.rerun()
+    
+    with tab2:
+        st.markdown('<h1 class="title">📋 Status Check</h1>', unsafe_allow_html=True)
+        st.markdown('<p class="subtitle">Check your Secret Santa assignment using your PIN!</p>', unsafe_allow_html=True)
+        
+        name = st.text_input("👤 Enter your name:", placeholder="Your name", key="status_name")
+        pin = st.text_input("🔑 Enter your PIN:", placeholder="4-digit PIN", type="password", key="status_pin")
+        
+        if st.button("✅ Check Status", key="check_status"):
+            if name and pin:
+                participant_data = st.session_state.participants_data.get(name, {})
+                if participant_data.get('drawn', False) and participant_data.get('pin') == pin:
+                    st.success("✅ Valid login!")
+                    st.markdown(f"""
+                    <div class="status-card">
+                        <h3>🎅 Your Assignment:</h3>
+                        <strong style="font-size: 2.5rem; color: #dc2626;">{participant_data['secret_santa']}</strong>
+                        <p>🎁 Buy a gift for {participant_data['secret_santa']}!</p>
+                    </div>
+                    """, unsafe_allow_html=True)
+                else:
+                    st.markdown("""
+                    <div class="invalid-box">
+                        ❌ Invalid name or PIN combination!<br>
+                        Please check and try again. 🎅
+                    </div>
+                    """, unsafe_allow_html=True)
+            else:
+                st.error("Please enter both name and PIN!")
+        
+        st.markdown("""
+        <div class="status-card">
+            <strong>ℹ️ How to use:</strong><br>
+            1. Use the name & 4-digit PIN from your first draw<br>
+            2. Each person can only draw ONCE<br>
+            3. Check status anytime before Christmas! 🎄
         </div>
         """, unsafe_allow_html=True)
-        
-        st.markdown('<p class="subtitle" style="margin-top: 3rem;">Spread some holiday magic! Merry Christmas! 🎄❄️</p>', unsafe_allow_html=True)
-        
-        if st.button("🔄 Try Another Name", key="reset_btn"):
-            for key in ['revealed', 'user_name', 'secret_santa', 'invalid_shown']:
-                st.session_state[key] = False if key != 'user_name' else ""
-            st.rerun()
     
     st.markdown('</div>', unsafe_allow_html=True)
 
