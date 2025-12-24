@@ -259,7 +259,7 @@ css = """
     }
     
     .snowflake {
-        color: #ffffff !important;
+        color: #fff !important;
         text-shadow: 0 0 15px rgba(255,255,255,1) !important;
         font-size: 1em !important;
         position: fixed;
