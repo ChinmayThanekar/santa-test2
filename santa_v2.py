@@ -260,8 +260,8 @@ css = """
     
     .snowflake {
         color: #ffffff !important;
-        text-shadow: 0 0 30px rgba(255,255,255,1) !important;
-        font-size: 2.8rem !important;
+        text-shadow: 0 0 15px rgba(255,255,255,1) !important;
+        font-size: 1.5rem !important;
         position: fixed;
         top: -70px;
         animation: fall linear infinite;
