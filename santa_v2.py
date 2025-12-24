@@ -259,6 +259,14 @@ css = """
     }
     
     .snowflake {
+        color: #fff;
+        font-size: 1em;
+        position: fixed;
+        top: -10%;
+        z-index: 9999;
+        user-select: none;
+        animation: fall linear infinite;
+    }'''{
         color: #ffffff !important;
         text-shadow: 0 0 15px rgba(255,255,255,1) !important;
         font-size: 1.5rem !important;
@@ -268,7 +276,7 @@ css = """
         pointer-events: none;
         z-index: 500;
         filter: drop-shadow(0 0 20px rgba(255,255,255,1)) !important;
-    }
+    }'''
     
     @keyframes fall {
         to { transform: translateY(140vh) rotate(1440deg); }
