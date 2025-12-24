@@ -8,35 +8,34 @@ PARTICIPANTS = [
     "Frank", "Grace", "Henry", "Ivy", "Jack"
 ]
 
-# Christmas Santa Theme CSS with animated background
+# Christmas Red-to-Green Gradient Theme CSS
 css = """
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap');
     @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap');
     
-    /* Santa Christmas Background */
+    /* Red to Green Christmas Gradient Background */
     .main {
-        background: 
-            radial-gradient(circle at 20% 80%, rgba(255,107,107,0.3) 0%, transparent 50%),
-            radial-gradient(circle at 80% 20%, rgba(255,202,87,0.3) 0%, transparent 50%),
-            radial-gradient(circle at 40% 40%, rgba(72,219,251,0.2) 0%, transparent 50%),
-            linear-gradient(135deg, #2c3e50 0%, #1a252f 50%, #34495e 100%);
+        background: linear-gradient(135deg, 
+            #dc2626 0%, 
+            #ea580c 20%, 
+            #f97316 40%, 
+            #eab308 50%, 
+            #84cc16 60%, 
+            #22c55e 80%, 
+            #16a34a 100%);
+        background-size: 400% 400%;
+        animation: gradientShift 15s ease infinite;
         min-height: 100vh;
         font-family: 'Poppins', sans-serif;
         position: relative;
         overflow: hidden;
     }
     
-    /* Santa Hat Pattern Background */
-    .santa-bg {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        opacity: 0.05;
-        z-index: 1;
-        pointer-events: none;
+    @keyframes gradientShift {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
     }
     
     /* Christmas Lights Animation */
@@ -44,7 +43,7 @@ css = """
         position: fixed;
         border-radius: 50%;
         animation: twinkle 2s ease-in-out infinite;
-        box-shadow: 0 0 20px currentColor;
+        box-shadow: 0 0 25px currentColor;
         z-index: 2;
     }
     
@@ -52,22 +51,22 @@ css = """
     .light:nth-child(even) { animation-delay: 1s; }
     
     @keyframes twinkle {
-        0%, 100% { opacity: 0.3; transform: scale(1); }
-        50% { opacity: 1; transform: scale(1.2); }
+        0%, 100% { opacity: 0.4; transform: scale(1); }
+        50% { opacity: 1; transform: scale(1.3); }
     }
     
     .santa-container {
         max-width: 600px;
         margin: 0 auto;
-        padding: 2rem;
+        padding: 2.5rem;
         text-align: center;
-        background: rgba(255,255,255,0.15);
-        backdrop-filter: blur(15px);
-        border: 2px solid rgba(255,255,255,0.2);
-        border-radius: 25px;
+        background: rgba(255,255,255,0.2);
+        backdrop-filter: blur(20px);
+        border: 3px solid rgba(255,255,255,0.3);
+        border-radius: 30px;
         box-shadow: 
-            0 25px 50px rgba(0,0,0,0.3),
-            inset 0 1px 0 rgba(255,255,255,0.4);
+            0 30px 60px rgba(0,0,0,0.4),
+            inset 0 1px 0 rgba(255,255,255,0.5);
         position: relative;
         z-index: 10;
         overflow: hidden;
@@ -79,221 +78,234 @@ css = """
         top: 0;
         left: 0;
         right: 0;
-        height: 5px;
+        height: 8px;
         background: linear-gradient(90deg, 
-            #ff6b6b, #feca57, #48dbfb, #ff9ff3, #ff6b6b);
-        border-radius: 25px 25px 0 0;
+            #dc2626, #f97316, #eab308, #22c55e, #16a34a, #dc2626);
+        border-radius: 30px 30px 0 0;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.3);
     }
     
     .title {
-        font-size: 3.5rem;
+        font-size: 3.8rem;
         font-family: 'Dancing Script', cursive;
-        background: linear-gradient(45deg, #ff6b6b, #feca57, #ff9ff3, #48dbfb);
+        background: linear-gradient(45deg, #fefce8, #ffffff, #fefce8);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
         margin-bottom: 1rem;
-        text-shadow: 0 0 30px rgba(255,255,255,0.5);
-        animation: titleBounce 3s ease-in-out infinite;
+        text-shadow: 
+            0 0 20px rgba(255,255,255,0.8),
+            2px 2px 10px rgba(0,0,0,0.3);
+        animation: titleGlow 3s ease-in-out infinite;
     }
     
-    @keyframes titleBounce {
-        0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
-        40% { transform: translateY(-10px); }
-        60% { transform: translateY(-5px); }
+    @keyframes titleGlow {
+        0%, 100% { 
+            text-shadow: 
+                0 0 20px rgba(255,255,255,0.8),
+                2px 2px 10px rgba(0,0,0,0.3);
+        }
+        50% { 
+            text-shadow: 
+                0 0 40px rgba(255,255,255,1),
+                0 0 60px rgba(255,255,255,0.6),
+                2px 2px 10px rgba(0,0,0,0.3);
+        }
     }
     
     .subtitle {
-        font-size: 1.4rem;
-        color: #f8f9fa;
+        font-size: 1.5rem;
+        color: #fefce8;
         margin-bottom: 2rem;
         text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+        font-weight: 500;
     }
     
     .name-input {
         width: 100%;
-        padding: 1.2rem;
-        font-size: 1.6rem;
-        border: 3px solid rgba(255,255,255,0.3);
-        border-radius: 20px;
+        padding: 1.3rem;
+        font-size: 1.7rem;
+        border: 4px solid rgba(255,255,255,0.4);
+        border-radius: 25px;
         background: rgba(255,255,255,0.95);
         box-shadow: 
-            0 15px 35px rgba(0,0,0,0.2),
-            inset 0 1px 0 rgba(255,255,255,0.8);
+            0 20px 40px rgba(0,0,0,0.3),
+            inset 0 1px 0 rgba(255,255,255,1);
         text-align: center;
-        margin-bottom: 2rem;
+        margin-bottom: 2.5rem;
         font-family: 'Poppins', sans-serif;
-        font-weight: 500;
-        transition: all 0.3s ease;
+        font-weight: 600;
+        transition: all 0.4s ease;
     }
     
     .name-input:focus {
-        border-color: #ff6b6b;
+        border-color: #fefce8;
         box-shadow: 
-            0 20px 45px rgba(255,107,107,0.3),
-            inset 0 1px 0 rgba(255,255,255,0.9);
-        transform: scale(1.02);
+            0 25px 50px rgba(254,252,232,0.4),
+            inset 0 1px 0 rgba(255,255,255,1);
+        transform: scale(1.03);
     }
     
     .reveal-btn {
-        background: linear-gradient(45deg, #ff4757, #ff6b6b, #ff8e8e);
+        background: linear-gradient(45deg, #dc2626, #f97316, #eab308);
         border: none;
-        padding: 1.4rem 3.5rem;
-        font-size: 1.4rem;
-        font-weight: 700;
-        border-radius: 50px;
+        padding: 1.5rem 4rem;
+        font-size: 1.5rem;
+        font-weight: 800;
+        border-radius: 60px;
         color: white;
         cursor: pointer;
         box-shadow: 
-            0 20px 40px rgba(255,71,87,0.4),
+            0 25px 50px rgba(220,38,38,0.5),
             inset 0 1px 0 rgba(255,255,255,0.3);
         transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
         font-family: 'Poppins', sans-serif;
         position: relative;
         overflow: hidden;
+        text-transform: uppercase;
+        letter-spacing: 1px;
     }
     
     .reveal-btn:hover {
-        transform: translateY(-8px);
+        transform: translateY(-10px);
         box-shadow: 
-            0 30px 60px rgba(255,71,87,0.6),
+            0 35px 70px rgba(220,38,38,0.7),
             inset 0 1px 0 rgba(255,255,255,0.4);
     }
     
     /* Reveal Animation */
     .reveal-box {
-        background: linear-gradient(45deg, #ff9ff3, #feca57, #54a0ff);
-        padding: 3.5rem 2rem;
-        border-radius: 30px;
-        margin: 2.5rem 0;
-        min-height: 220px;
+        background: linear-gradient(45deg, #fefce8, #ffffff, #fefce8);
+        padding: 4rem 2.5rem;
+        border-radius: 35px;
+        margin: 3rem 0;
+        min-height: 240px;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        font-size: 2.8rem;
-        font-weight: 700;
-        color: #1a1a2e;
-        text-shadow: 2px 2px 4px rgba(255,255,255,0.5);
+        font-size: 3rem;
+        font-weight: 800;
+        color: #1f2937;
+        text-shadow: 2px 2px 8px rgba(0,0,0,0.2);
         box-shadow: 
-            0 30px 60px rgba(0,0,0,0.3),
-            inset 0 1px 0 rgba(255,255,255,0.6);
+            0 35px 70px rgba(0,0,0,0.4),
+            inset 0 1px 0 rgba(255,255,255,0.8);
         opacity: 0;
-        transform: scale(0.3) rotateX(90deg);
-        animation: revealAnim 2.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+        transform: scale(0.2) rotateY(180deg);
+        animation: revealAnim 3s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
         position: relative;
         overflow: hidden;
     }
     
     .reveal-box::before {
-        content: '🎁✨';
+        content: '🎁✨🎅';
         position: absolute;
-        font-size: 4rem;
-        top: 10px;
+        font-size: 5rem;
+        top: 15px;
         left: 50%;
         transform: translateX(-50%);
-        animation: giftBounce 1s ease-in-out 1s both;
+        animation: giftBounce 1.2s ease-in-out 1.5s both;
     }
     
     @keyframes giftBounce {
         0%, 60%, 100% { transform: translateX(-50%) translateY(0); }
-        30%, 70% { transform: translateX(-50%) translateY(-20px); }
+        30%, 70% { transform: translateX(-50%) translateY(-25px); }
     }
     
     @keyframes revealAnim {
-        0% { opacity: 0; transform: scale(0.3) rotateX(90deg); }
-        50% { opacity: 0.8; transform: scale(1.05) rotateX(0deg); }
-        100% { opacity: 1; transform: scale(1) rotateX(0deg); }
+        0% { opacity: 0; transform: scale(0.2) rotateY(180deg); }
+        50% { opacity: 0.8; transform: scale(1.1) rotateY(0deg); }
+        100% { opacity: 1; transform: scale(1) rotateY(0deg); }
     }
     
     /* Invalid Participant Styling */
     .invalid-box {
-        background: linear-gradient(45deg, #ff3838, #ff4757);
-        padding: 2.5rem;
-        border-radius: 25px;
-        margin: 2rem 0;
-        color: white;
-        font-size: 1.6rem;
+        background: linear-gradient(45deg, #dc2626, #b91c1c);
+        padding: 3rem;
+        border-radius: 30px;
+        margin: 2.5rem 0;
+        color: #fefce8;
+        font-size: 1.8rem;
         font-weight: 700;
-        box-shadow: 0 20px 45px rgba(255,56,56,0.4);
-        animation: shake 0.6s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+        box-shadow: 0 25px 50px rgba(220,38,38,0.5);
+        animation: shake 0.8s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
         text-align: center;
-        border: 3px solid rgba(255,255,255,0.3);
+        border: 4px solid rgba(255,255,255,0.3);
     }
     
     @keyframes shake {
         0%, 100% { transform: translateX(0) rotate(0deg); }
-        10%, 30%, 50%, 70%, 90% { transform: translateX(-12px) rotate(-2deg); }
-        20%, 40%, 60%, 80% { transform: translateX(12px) rotate(2deg); }
+        10%, 30%, 50%, 70%, 90% { transform: translateX(-15px) rotate(-3deg); }
+        20%, 40%, 60%, 80% { transform: translateX(15px) rotate(3deg); }
     }
     
     .valid-names {
-        background: rgba(76,175,80,0.2);
-        padding: 1.5rem;
-        border-radius: 20px;
-        margin: 1.5rem 0;
-        color: #e8f5e8;
-        font-size: 1rem;
-        border: 1px solid rgba(76,175,80,0.4);
+        background: rgba(34,197,94,0.3);
+        padding: 2rem;
+        border-radius: 25px;
+        margin: 2rem 0;
+        color: #fefce8;
+        font-size: 1.1rem;
+        border: 2px solid rgba(34,197,94,0.5);
+        box-shadow: 0 10px 30px rgba(34,197,94,0.3);
     }
     
-    /* Enhanced Snowflakes */
+    /* Enhanced Snowflakes with Red/Green tint */
     .snowflake {
-        color: #fff;
-        font-size: 1.8rem;
+        color: #fefce8;
+        text-shadow: 0 0 15px rgba(255,255,255,0.9);
+        font-size: 2rem;
         position: fixed;
-        top: -30px;
+        top: -40px;
         animation: fall linear infinite;
         pointer-events: none;
         z-index: 5;
-        text-shadow: 0 0 10px rgba(255,255,255,0.8);
     }
     
     @keyframes fall {
         to {
-            transform: translateY(110vh) rotate(720deg);
+            transform: translateY(120vh) rotate(1080deg);
         }
     }
 </style>
 """
 
 def create_christmas_effects():
-    """Create Christmas lights and snowflakes"""
+    """Create Christmas lights and snowflakes matching red-green theme"""
     effects_html = ""
     
-    # Christmas lights around the screen
+    # Red-Green Christmas lights
     light_positions = [
-        ("10%", "10%", "#ff6b6b"), ("90%", "10%", "#feca57"),
-        ("10%", "90%", "#48dbfb"), ("90%", "90%", "#ff9ff3"),
-        ("50%", "5%", "#ff4757"), ("5%", "50%", "#54a0ff"),
-        ("95%", "50%", "#00d2d3"), ("50%", "95%", "#ff3838")
+        ("8%", "8%", "#dc2626"), ("92%", "8%", "#22c55e"),
+        ("8%", "92%", "#f97316"), ("92%", "92%", "#16a34a"),
+        ("50%", "3%", "#eab308"), ("3%", "50%", "#ef4444"),
+        ("97%", "50%", "#059669"), ("50%", "97%", "#dc2626")
     ]
     
     for i, (top, left, color) in enumerate(light_positions):
-        size = "25px" if i < 4 else "20px"
+        size = "30px" if i < 4 else "25px"
         effects_html += f"""
         <div class="light" style="
             width: {size}; height: {size};
             top: {top}; left: {left};
             background: {color};
-            animation-duration: {random.uniform(1.5, 3)}s;
+            animation-duration: {random.uniform(1.8, 3.2)}s;
         "></div>
         """
     
     # Snowflakes
-    for i in range(60):
+    for i in range(70):
         left = f"{random.randint(0, 100)}vw"
-        delay = f"{random.randint(0, 30)}s"
-        duration = f"{random.uniform(12, 25)}s"
-        size = random.choice(["1.2rem", "1.8rem", "2.2rem"])
-        rotation = random.choice(["rotate(0deg)", "rotate(45deg)", "rotate(90deg)"])
+        delay = f"{random.randint(0, 40)}s"
+        duration = f"{random.uniform(15, 30)}s"
+        size = random.choice(["1.5rem", "2rem", "2.5rem"])
         effects_html += f"""
         <div class="snowflake" style="
             left: {left};
             animation-delay: {delay};
             animation-duration: {duration};
             font-size: {size};
-            animation-timing-function: {rotation};
         ">❄️</div>
         """
     
@@ -373,12 +385,12 @@ def main():
             # Reveal animation
             st.markdown(f"""
             <div class="reveal-box">
-                <div style="font-size: 1.2rem; margin-bottom: 1rem;">Hey <strong>{st.session_state.user_name}</strong>,</div>
-                Your Secret Santa is... <br><strong style="color: #1a1a2e; font-size: 3rem;">{st.session_state.secret_santa}</strong>! 🎁✨
+                <div style="font-size: 1.4rem; margin-bottom: 1.5rem;">Hey <strong>{st.session_state.user_name}</strong>,</div>
+                Your Secret Santa is... <br><strong style="font-size: 3.5rem;">{st.session_state.secret_santa}</strong>! 🎁✨
             </div>
             """, unsafe_allow_html=True)
             
-            st.markdown('<p class="subtitle" style="margin-top: 2rem;">Spread some holiday magic! 🎅❄️</p>', unsafe_allow_html=True)
+            st.markdown('<p class="subtitle" style="margin-top: 2.5rem;">Spread some holiday magic! 🎅❄️</p>', unsafe_allow_html=True)
             
             if st.button("🔄 Try Another Name", key="reset_btn"):
                 st.session_state.revealed = False
