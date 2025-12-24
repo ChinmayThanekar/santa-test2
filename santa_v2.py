@@ -8,28 +8,32 @@ PARTICIPANTS = [
     "Frank", "Grace", "Henry", "Ivy", "Jack"
 ]
 
-# Christmas Red-to-Green Gradient Theme CSS
+# Fixed Christmas Theme CSS - Forces proper background & readability
 css = """
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap');
-    @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap');
-    
-    /* Red to Green Christmas Gradient Background */
-    .main {
+    /* Force full override of Streamlit default styles */
+    [data-testid="stAppViewContainer"] {
         background: linear-gradient(135deg, 
-            #dc2626 0%, 
-            #ea580c 20%, 
-            #f97316 40%, 
-            #eab308 50%, 
-            #84cc16 60%, 
-            #22c55e 80%, 
-            #16a34a 100%);
-        background-size: 400% 400%;
-        animation: gradientShift 15s ease infinite;
+            #1a1a2e 0%, 
+            #16213e 25%, 
+            #0f0f23 50%, 
+            #1a1a2e 75%, 
+            #2d1b69 100%);
+        background-size: 300% 300%;
+        animation: gradientShift 20s ease infinite;
         min-height: 100vh;
-        font-family: 'Poppins', sans-serif;
         position: relative;
-        overflow: hidden;
+    }
+    
+    [data-testid="stAppViewContainer"] > div > div > div {
+        background: transparent !important;
+    }
+    
+    .main .block-container {
+        padding-top: 2rem;
+        padding-bottom: 2rem;
+        max-width: 100%;
+        background: transparent !important;
     }
     
     @keyframes gradientShift {
@@ -38,38 +42,39 @@ css = """
         100% { background-position: 0% 50%; }
     }
     
-    /* Christmas Lights Animation */
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Dancing+Script:wght@700&display=swap');
+    
+    /* Christmas Lights */
     .light {
         position: fixed;
         border-radius: 50%;
         animation: twinkle 2s ease-in-out infinite;
-        box-shadow: 0 0 25px currentColor;
-        z-index: 2;
+        box-shadow: 0 0 30px currentColor;
+        z-index: 999;
+        top: var(--top);
+        left: var(--left);
     }
-    
-    .light:nth-child(odd) { animation-delay: 0s; }
-    .light:nth-child(even) { animation-delay: 1s; }
     
     @keyframes twinkle {
         0%, 100% { opacity: 0.4; transform: scale(1); }
-        50% { opacity: 1; transform: scale(1.3); }
+        50% { opacity: 1; transform: scale(1.4); }
     }
     
+    /* Main Santa Container */
     .santa-container {
-        max-width: 600px;
-        margin: 0 auto;
-        padding: 2.5rem;
+        max-width: 700px;
+        margin: 2rem auto;
+        padding: 3rem;
         text-align: center;
-        background: rgba(255,255,255,0.2);
-        backdrop-filter: blur(20px);
-        border: 3px solid rgba(255,255,255,0.3);
+        background: linear-gradient(145deg, rgba(255,255,255,0.15), rgba(255,255,255,0.05));
+        backdrop-filter: blur(25px);
+        border: 2px solid rgba(255,255,255,0.2);
         border-radius: 30px;
         box-shadow: 
-            0 30px 60px rgba(0,0,0,0.4),
-            inset 0 1px 0 rgba(255,255,255,0.5);
+            0 35px 80px rgba(0,0,0,0.5),
+            inset 0 1px 0 rgba(255,255,255,0.3);
         position: relative;
-        z-index: 10;
-        overflow: hidden;
+        z-index: 1000;
     }
     
     .santa-container::before {
@@ -80,226 +85,211 @@ css = """
         right: 0;
         height: 8px;
         background: linear-gradient(90deg, 
-            #dc2626, #f97316, #eab308, #22c55e, #16a34a, #dc2626);
+            #dc2626, #ff6b35, #ffd23f, #51cf66, #16a34a, #dc2626);
         border-radius: 30px 30px 0 0;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        box-shadow: 0 2px 15px rgba(220,38,38,0.5);
     }
     
+    /* Title */
     .title {
-        font-size: 3.8rem;
+        font-size: 4rem;
         font-family: 'Dancing Script', cursive;
-        background: linear-gradient(45deg, #fefce8, #ffffff, #fefce8);
+        background: linear-gradient(45deg, #ffffff, #f8fafc, #ffffff);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
-        margin-bottom: 1rem;
-        text-shadow: 
-            0 0 20px rgba(255,255,255,0.8),
-            2px 2px 10px rgba(0,0,0,0.3);
-        animation: titleGlow 3s ease-in-out infinite;
+        margin-bottom: 1.5rem;
+        text-shadow: 0 0 40px rgba(255,255,255,0.8);
+        animation: titleGlow 4s ease-in-out infinite;
+        letter-spacing: 2px;
     }
     
     @keyframes titleGlow {
-        0%, 100% { 
-            text-shadow: 
-                0 0 20px rgba(255,255,255,0.8),
-                2px 2px 10px rgba(0,0,0,0.3);
-        }
-        50% { 
-            text-shadow: 
-                0 0 40px rgba(255,255,255,1),
-                0 0 60px rgba(255,255,255,0.6),
-                2px 2px 10px rgba(0,0,0,0.3);
-        }
+        0%, 100% { text-shadow: 0 0 40px rgba(255,255,255,0.8), 0 0 60px rgba(255,255,255,0.4); }
+        50% { text-shadow: 0 0 60px rgba(255,255,255,1), 0 0 100px rgba(255,255,255,0.6); }
     }
     
     .subtitle {
-        font-size: 1.5rem;
-        color: #fefce8;
-        margin-bottom: 2rem;
-        text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+        font-size: 1.6rem;
+        color: #f8fafc;
+        margin-bottom: 2.5rem;
+        text-shadow: 0 3px 15px rgba(0,0,0,0.7);
         font-weight: 500;
+        font-family: 'Poppins', sans-serif;
     }
     
+    /* Name Input */
     .name-input {
         width: 100%;
-        padding: 1.3rem;
-        font-size: 1.7rem;
-        border: 4px solid rgba(255,255,255,0.4);
+        padding: 1.5rem 2rem;
+        font-size: 1.8rem;
+        border: 3px solid rgba(255,255,255,0.4);
         border-radius: 25px;
-        background: rgba(255,255,255,0.95);
+        background: rgba(255,255,255,0.95) !important;
         box-shadow: 
-            0 20px 40px rgba(0,0,0,0.3),
-            inset 0 1px 0 rgba(255,255,255,1);
+            0 25px 50px rgba(0,0,0,0.3),
+            inset 0 2px 10px rgba(255,255,255,0.8);
         text-align: center;
-        margin-bottom: 2.5rem;
+        margin-bottom: 3rem;
         font-family: 'Poppins', sans-serif;
         font-weight: 600;
         transition: all 0.4s ease;
+        color: #1e293b;
     }
     
     .name-input:focus {
-        border-color: #fefce8;
+        border-color: #fefce8 !important;
         box-shadow: 
-            0 25px 50px rgba(254,252,232,0.4),
-            inset 0 1px 0 rgba(255,255,255,1);
-        transform: scale(1.03);
+            0 30px 60px rgba(254,252,232,0.4),
+            inset 0 2px 15px rgba(255,255,255,1);
+        transform: scale(1.02);
     }
     
+    /* Reveal Button */
     .reveal-btn {
-        background: linear-gradient(45deg, #dc2626, #f97316, #eab308);
+        background: linear-gradient(45deg, #dc2626, #ff6b35, #ffd23f);
         border: none;
-        padding: 1.5rem 4rem;
-        font-size: 1.5rem;
+        padding: 1.6rem 4rem;
+        font-size: 1.6rem;
         font-weight: 800;
-        border-radius: 60px;
-        color: white;
+        border-radius: 50px;
+        color: #1e293b;
         cursor: pointer;
         box-shadow: 
-            0 25px 50px rgba(220,38,38,0.5),
-            inset 0 1px 0 rgba(255,255,255,0.3);
-        transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            0 30px 60px rgba(220,38,38,0.6),
+            inset 0 2px 10px rgba(255,255,255,0.4);
+        transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
         font-family: 'Poppins', sans-serif;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
         position: relative;
         overflow: hidden;
-        text-transform: uppercase;
-        letter-spacing: 1px;
     }
     
     .reveal-btn:hover {
-        transform: translateY(-10px);
+        transform: translateY(-12px);
         box-shadow: 
-            0 35px 70px rgba(220,38,38,0.7),
-            inset 0 1px 0 rgba(255,255,255,0.4);
+            0 40px 80px rgba(220,38,38,0.8),
+            inset 0 2px 15px rgba(255,255,255,0.5);
+        color: #1e293b;
     }
     
-    /* Reveal Animation */
+    /* Reveal Box */
     .reveal-box {
-        background: linear-gradient(45deg, #fefce8, #ffffff, #fefce8);
-        padding: 4rem 2.5rem;
+        background: linear-gradient(145deg, #fefce8, #ffffff, #fefce8);
+        padding: 4rem 3rem;
         border-radius: 35px;
         margin: 3rem 0;
-        min-height: 240px;
+        min-height: 260px;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        font-size: 3rem;
-        font-weight: 800;
-        color: #1f2937;
-        text-shadow: 2px 2px 8px rgba(0,0,0,0.2);
+        font-size: 3.2rem;
+        font-weight: 900;
+        color: #1e293b !important;
+        text-shadow: 2px 2px 10px rgba(0,0,0,0.2);
         box-shadow: 
-            0 35px 70px rgba(0,0,0,0.4),
-            inset 0 1px 0 rgba(255,255,255,0.8);
+            0 40px 90px rgba(0,0,0,0.5),
+            inset 0 2px 20px rgba(255,255,255,0.9);
         opacity: 0;
-        transform: scale(0.2) rotateY(180deg);
+        transform: scale(0.1) rotateY(180deg);
         animation: revealAnim 3s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
         position: relative;
-        overflow: hidden;
-    }
-    
-    .reveal-box::before {
-        content: '🎁✨🎅';
-        position: absolute;
-        font-size: 5rem;
-        top: 15px;
-        left: 50%;
-        transform: translateX(-50%);
-        animation: giftBounce 1.2s ease-in-out 1.5s both;
-    }
-    
-    @keyframes giftBounce {
-        0%, 60%, 100% { transform: translateX(-50%) translateY(0); }
-        30%, 70% { transform: translateX(-50%) translateY(-25px); }
+        border: 4px solid rgba(255,255,255,0.6);
     }
     
     @keyframes revealAnim {
-        0% { opacity: 0; transform: scale(0.2) rotateY(180deg); }
-        50% { opacity: 0.8; transform: scale(1.1) rotateY(0deg); }
+        0% { opacity: 0; transform: scale(0.1) rotateY(180deg); }
+        50% { opacity: 0.9; transform: scale(1.1) rotateY(0deg); }
         100% { opacity: 1; transform: scale(1) rotateY(0deg); }
     }
     
-    /* Invalid Participant Styling */
+    /* Invalid Box */
     .invalid-box {
-        background: linear-gradient(45deg, #dc2626, #b91c1c);
+        background: linear-gradient(145deg, #dc2626, #b91c1c);
         padding: 3rem;
         border-radius: 30px;
         margin: 2.5rem 0;
-        color: #fefce8;
-        font-size: 1.8rem;
-        font-weight: 700;
-        box-shadow: 0 25px 50px rgba(220,38,38,0.5);
+        color: #fefce8 !important;
+        font-size: 1.9rem;
+        font-weight: 800;
+        box-shadow: 0 30px 70px rgba(220,38,38,0.7);
         animation: shake 0.8s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
         text-align: center;
-        border: 4px solid rgba(255,255,255,0.3);
+        border: 4px solid rgba(255,255,255,0.4);
     }
     
     @keyframes shake {
         0%, 100% { transform: translateX(0) rotate(0deg); }
-        10%, 30%, 50%, 70%, 90% { transform: translateX(-15px) rotate(-3deg); }
-        20%, 40%, 60%, 80% { transform: translateX(15px) rotate(3deg); }
+        10%, 30%, 50%, 70%, 90% { transform: translateX(-20px) rotate(-3deg); }
+        20%, 40%, 60%, 80% { transform: translateX(20px) rotate(3deg); }
     }
     
+    /* Valid Names List */
     .valid-names {
-        background: rgba(34,197,94,0.3);
+        background: linear-gradient(145deg, rgba(34,197,94,0.3), rgba(34,197,94,0.1));
         padding: 2rem;
         border-radius: 25px;
         margin: 2rem 0;
-        color: #fefce8;
-        font-size: 1.1rem;
-        border: 2px solid rgba(34,197,94,0.5);
-        box-shadow: 0 10px 30px rgba(34,197,94,0.3);
+        color: #f8fafc !important;
+        font-size: 1.2rem;
+        border: 2px solid rgba(34,197,94,0.6);
+        box-shadow: 0 15px 40px rgba(34,197,94,0.4);
     }
     
-    /* Enhanced Snowflakes with Red/Green tint */
+    /* Snowflakes */
     .snowflake {
-        color: #fefce8;
-        text-shadow: 0 0 15px rgba(255,255,255,0.9);
-        font-size: 2rem;
+        color: #ffffff;
+        text-shadow: 0 0 20px rgba(255,255,255,0.9);
+        font-size: 2.2rem;
         position: fixed;
-        top: -40px;
+        top: -50px;
         animation: fall linear infinite;
         pointer-events: none;
-        z-index: 5;
+        z-index: 500;
+        filter: drop-shadow(0 0 10px rgba(255,255,255,0.8));
     }
     
     @keyframes fall {
-        to {
-            transform: translateY(120vh) rotate(1080deg);
-        }
+        to { transform: translateY(120vh) rotate(1080deg); }
     }
+    
+    /* Hide Streamlit metrics */
+    [data-testid="stMetric"] { display: none !important; }
 </style>
 """
 
 def create_christmas_effects():
-    """Create Christmas lights and snowflakes matching red-green theme"""
+    """Create enhanced Christmas effects"""
     effects_html = ""
     
-    # Red-Green Christmas lights
+    # Red-Green Christmas lights in fixed positions
     light_positions = [
-        ("8%", "8%", "#dc2626"), ("92%", "8%", "#22c55e"),
-        ("8%", "92%", "#f97316"), ("92%", "92%", "#16a34a"),
-        ("50%", "3%", "#eab308"), ("3%", "50%", "#ef4444"),
-        ("97%", "50%", "#059669"), ("50%", "97%", "#dc2626")
+        ("5%", "5%", "#dc2626"), ("95%", "5%", "#22c55e"),
+        ("5%", "95%", "#ff6b35"), ("95%", "95%", "#16a34a"),
+        ("50%", "2%", "#ffd23f"), ("2%", "50%", "#ef4444"),
+        ("98%", "50%", "#059669"), ("50%", "98%", "#dc2626"),
+        ("20%", "20%", "#f97316"), ("80%", "80%", "#51cf66")
     ]
     
-    for i, (top, left, color) in enumerate(light_positions):
-        size = "30px" if i < 4 else "25px"
+    for top, left, color in light_positions:
         effects_html += f"""
         <div class="light" style="
-            width: {size}; height: {size};
-            top: {top}; left: {left};
+            --top: {top};
+            --left: {left};
+            width: 35px; height: 35px;
             background: {color};
-            animation-duration: {random.uniform(1.8, 3.2)}s;
+            animation-duration: {random.uniform(1.5, 3.5)}s;
         "></div>
         """
     
-    # Snowflakes
-    for i in range(70):
+    # Enhanced snowflakes
+    for i in range(80):
         left = f"{random.randint(0, 100)}vw"
-        delay = f"{random.randint(0, 40)}s"
-        duration = f"{random.uniform(15, 30)}s"
-        size = random.choice(["1.5rem", "2rem", "2.5rem"])
+        delay = f"{random.uniform(0, 8)}s"
+        duration = f"{random.uniform(15, 35)}s"
+        size = random.choice(["1.8rem", "2.2rem", "2.8rem", "1.5rem"])
         effects_html += f"""
         <div class="snowflake" style="
             left: {left};
@@ -312,99 +302,91 @@ def create_christmas_effects():
     return effects_html
 
 def is_valid_participant(name, participants):
-    """Check if name exists in participants list (case-insensitive)"""
     return name.strip().lower() in [p.lower() for p in participants]
 
 def main():
+    # Apply CSS first
     st.markdown(css, unsafe_allow_html=True)
     
     # Add Christmas effects
     st.markdown(create_christmas_effects(), unsafe_allow_html=True)
     
-    # Session state initialization
-    if 'revealed' not in st.session_state:
-        st.session_state.revealed = False
-    if 'user_name' not in st.session_state:
-        st.session_state.user_name = ""
-    if 'invalid_shown' not in st.session_state:
-        st.session_state.invalid_shown = False
+    # Session state
+    for key in ['revealed', 'user_name', 'invalid_shown']:
+        if key not in st.session_state:
+            st.session_state[key] = False if key != 'user_name' else ""
     
-    container = st.container()
+    # Main content container
+    st.markdown('<div class="santa-container">', unsafe_allow_html=True)
     
-    with container:
-        st.markdown('<div class="santa-container">', unsafe_allow_html=True)
+    if not st.session_state.revealed:
+        st.markdown('<h1 class="title">🎅 Secret Santa 🎁</h1>', unsafe_allow_html=True)
+        st.markdown('<p class="subtitle">Ho Ho Ho! Enter your name to discover who drew YOU! ✨</p>', unsafe_allow_html=True)
         
-        if not st.session_state.revealed:
-            st.markdown('<h1 class="title">🎅 Secret Santa 🎁</h1>', unsafe_allow_html=True)
-            st.markdown('<p class="subtitle">Ho Ho Ho! Enter your name to discover your Secret Santa!</p>', unsafe_allow_html=True)
-            
-            # Show valid participants
-            st.markdown("""
-            <div class="valid-names">
-                <strong>🎄 Valid Participants:</strong> """ + ", ".join(PARTICIPANTS) + """ 🎄
-            </div>
-            """, unsafe_allow_html=True)
-            
-            name = st.text_input("", 
-                               placeholder="👤 Enter your name here...",
-                               key="name_input",
-                               help="Type your name exactly as listed above!")
-            
-            col1, col2 = st.columns([1, 2])
-            
-            with col1:
-                if st.button("🎊 REVEAL MY SECRET SANTA 🎊", key="reveal_btn"):
-                    if name.strip():
-                        if is_valid_participant(name, PARTICIPANTS):
-                            st.session_state.user_name = name.strip()
-                            st.session_state.invalid_shown = False
-                            
-                            # Find secret santa
-                            other_names = [n for n in PARTICIPANTS if n.lower() != name.lower()]
-                            secret_santa = random.choice(other_names)
-                            st.session_state.secret_santa = secret_santa
-                            st.session_state.revealed = True
-                            st.rerun()
-                        else:
-                            st.session_state.invalid_shown = True
-                            st.session_state.user_name = name.strip()
-                            st.rerun()
-                    else:
-                        st.error("Please enter your name first! 🎄")
-            
-            # Show invalid participant message
-            if st.session_state.invalid_shown and st.session_state.user_name:
-                st.markdown(f"""
-                <div class="invalid-box">
-                    ❌ <strong>{st.session_state.user_name}</strong> is not a valid participant! <br>
-                    🎅 Please check the list above and try again! 🎅
-                </div>
-                """, unsafe_allow_html=True)
-                
-        else:
-            # Reveal animation
+        # Valid participants list
+        st.markdown(f"""
+        <div class="valid-names">
+            <strong>🎄 Valid Participants:</strong><br>
+            <span style="font-size: 1.4rem;">{', '.join(PARTICIPANTS)}</span> 🎄
+        </div>
+        """, unsafe_allow_html=True)
+        
+        name = st.text_input("", 
+                           placeholder="👤 Enter your name here...",
+                           key="name_input",
+                           help="Type your name exactly as listed above!")
+        
+        if st.button("🎊 REVEAL MY SECRET SANTA 🎊", key="reveal_btn", help="Click to discover!"):
+            if name.strip():
+                if is_valid_participant(name, PARTICIPANTS):
+                    st.session_state.user_name = name.strip()
+                    st.session_state.invalid_shown = False
+                    
+                    other_names = [n for n in PARTICIPANTS if n.lower() != name.lower()]
+                    secret_santa = random.choice(other_names)
+                    st.session_state.secret_santa = secret_santa
+                    st.session_state.revealed = True
+                    st.rerun()
+                else:
+                    st.session_state.invalid_shown = True
+                    st.session_state.user_name = name.strip()
+                    st.rerun()
+            else:
+                st.error("🎄 Please enter your name first!")
+        
+        if st.session_state.invalid_shown and st.session_state.user_name:
             st.markdown(f"""
-            <div class="reveal-box">
-                <div style="font-size: 1.4rem; margin-bottom: 1.5rem;">Hey <strong>{st.session_state.user_name}</strong>,</div>
-                Your Secret Santa is... <br><strong style="font-size: 3.5rem;">{st.session_state.secret_santa}</strong>! 🎁✨
+            <div class="invalid-box">
+                ❌ <strong>{st.session_state.user_name}</strong> is not a valid participant!<br>
+                🎅 Please check the list above and try again! 🎅
             </div>
             """, unsafe_allow_html=True)
             
-            st.markdown('<p class="subtitle" style="margin-top: 2.5rem;">Spread some holiday magic! 🎅❄️</p>', unsafe_allow_html=True)
-            
-            if st.button("🔄 Try Another Name", key="reset_btn"):
-                st.session_state.revealed = False
-                st.session_state.user_name = ""
-                st.session_state.secret_santa = None
-                st.session_state.invalid_shown = False
-                st.rerun()
+    else:
+        st.markdown(f"""
+        <div class="reveal-box">
+            <div style="font-size: 1.6rem; margin-bottom: 1.5rem; font-weight: 600;">
+                Hey <strong>{st.session_state.user_name}</strong>!
+            </div>
+            Your Secret Santa is...<br>
+            <strong style="font-size: 4rem; color: #dc2626;">{st.session_state.secret_santa}</strong>! 🎁✨🎅
+        </div>
+        """, unsafe_allow_html=True)
         
-        st.markdown('</div>', unsafe_allow_html=True)
+        st.markdown('<p class="subtitle" style="margin-top: 3rem;">Spread some holiday magic! Merry Christmas! 🎄❄️</p>', unsafe_allow_html=True)
+        
+        if st.button("🔄 Try Another Name", key="reset_btn"):
+            for key in ['revealed', 'user_name', 'secret_santa', 'invalid_shown']:
+                st.session_state[key] = False if key != 'user_name' else ""
+            st.rerun()
+    
+    st.markdown('</div>', unsafe_allow_html=True)
 
 if __name__ == "__main__":
     st.set_page_config(
-        page_title="Secret Santa 🎅",
-        page_icon="🎅",
-        layout="wide"
+        page_title="🎅 Secret Santa",
+        page_icon="🎁",
+        layout="wide",
+        initial_sidebar_state="collapsed"
     )
     main()
