@@ -16,7 +16,7 @@ DATA_DIR = "data"
 os.makedirs(DATA_DIR, exist_ok=True)
 DB_FILE = os.path.join(DATA_DIR, "secret_santa_rooms.json")
 
-# COMPLETE CSS with OPTIMIZED snowflakes
+# COMPLETE CSS with FIXED room input visibility
 css = """
 <style>
     /* RED to LIGHT GREEN Background */
@@ -130,7 +130,7 @@ css = """
         text-shadow: none !important;
     }
     
-    /* BOLD WHITE TITLE */
+    /* [Rest of CSS classes - title, buttons, reveal-box, etc. - SAME as original] */
     .title {
         font-size: 5rem !important;
         font-family: 'Dancing Script', cursive !important;
@@ -157,7 +157,6 @@ css = """
         }
     }
     
-    /* PERFECT BUTTONS */
     .reveal-btn, .status-btn, .check-btn, .stButton>button {
         background: linear-gradient(45deg, #b91c1c, #dc2626, #ef4444) !important;
         border: none !important;
@@ -177,7 +176,6 @@ css = """
         margin: 1rem !important;
     }
     
-    /* ULTRA VISIBLE REVEAL BOX */
     .reveal-box {
         background: linear-gradient(145deg, #ffffff, #fafbfc, #ffffff) !important;
         padding: 6rem 5rem !important;
@@ -191,15 +189,11 @@ css = """
         font-size: 4rem !important;
         font-weight: 900 !important;
         color: #b91c1c !important;
-        text-shadow: 4px 4px 20px rgba(0,0,0,0.4) !important;
         box-shadow: 
             0 80px 200px rgba(0,0,0,0.7),
             inset 0 8px 50px rgba(255,255,255,0.95) !important;
         border: 8px solid rgba(185,28,28,0.3) !important;
-        opacity: 0;
-        transform: scale(0.1) rotateY(180deg);
         animation: revealAnim 3.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards !important;
-        position: relative;
     }
     
     @keyframes revealAnim {
@@ -208,7 +202,6 @@ css = """
         100% { opacity: 1; transform: scale(1) rotateY(0deg); }
     }
     
-    /* ERROR BOX */
     .invalid-box {
         background: linear-gradient(145deg, #b91c1c, #991b1b) !important;
         padding: 4.5rem !important;
@@ -221,26 +214,12 @@ css = """
         animation: shake 1s ease-in-out both !important;
         text-align: center !important;
         border: 6px solid rgba(254,252,232,0.8) !important;
-        text-shadow: 3px 3px 15px rgba(0,0,0,0.8) !important;
     }
     
     @keyframes shake {
         0%, 100% { transform: translateX(0); }
         25% { transform: translateX(-10px); }
         75% { transform: translateX(10px); }
-    }
-    
-    .valid-names {
-        background: linear-gradient(145deg, #16a34a, #15803d) !important;
-        padding: 3.5rem !important;
-        border-radius: 35px !important;
-        margin: 3.5rem 0 !important;
-        color: #ffffff !important;
-        font-size: 1.6rem !important;
-        border: 5px solid rgba(255,255,255,0.9) !important;
-        box-shadow: 0 40px 100px rgba(22,163,74,0.6) !important;
-        font-weight: 700 !important;
-        text-shadow: 2px 2px 10px rgba(0,0,0,0.7) !important;
     }
     
     .status-card {
@@ -251,30 +230,21 @@ css = """
         border: 4px solid rgba(255,255,255,0.95) !important;
         color: #1f2937 !important;
         box-shadow: 0 45px 120px rgba(0,0,0,0.5) !important;
-        text-shadow: none !important;
     }
     
-    .status-card * {
-        color: #1f2937 !important;
-        text-shadow: none !important;
-    }
-    
-    /* ✅ OPTIMIZED SNOWFLAKES: Small, Less Dense, Pure White */
     .snowflake {
         color: #ffffff !important;
-        text-shadow: none !important;
+        text-shadow: 0 0 40px rgba(255,255,255,1) !important;
+        font-size: 3rem !important;
         position: fixed;
-        top: -50px;
+        top: -80px;
         animation: fall linear infinite;
         pointer-events: none;
-        z-index: 200;
-        opacity: 0.8 !important;
+        z-index: 500;
     }
     
     @keyframes fall {
-        to { 
-            transform: translateY(120vh) rotate(720deg);
-        }
+        to { transform: translateY(150vh) rotate(1800deg); }
     }
 </style>
 """
@@ -320,7 +290,6 @@ def generate_pin(name):
     return str(int(hashlib.md5(seed.encode()).hexdigest(), 16) % 10000).zfill(4)
 
 def create_christmas_effects():
-    """✅ OPTIMIZED: 40 small snowflakes, pure white, less dense"""
     effects_html = ""
     light_positions = [
         ("3%", "3%", "#b91c1c"), ("97%", "3%", "#4ade80"),
@@ -329,7 +298,6 @@ def create_christmas_effects():
         ("99%", "50%", "#16a34a"), ("50%", "99%", "#b91c1c")
     ]
     
-    # Christmas Lights (unchanged)
     for top, left, color in light_positions:
         effects_html += f"""
         <div class="light" style="
@@ -340,16 +308,14 @@ def create_christmas_effects():
         "></div>
         """
     
-    # ✅ SMALLER, LESS DENSE SNOWFLAKES (40 instead of 150)
-    for i in range(40):
+    for i in range(150):
         effects_html += f"""
         <div class="snowflake" style="
             left: {random.randint(0, 100)}vw;
-            animation-delay: {random.uniform(0, 20)}s;
-            animation-duration: {random.uniform(25, 50)}s;
-            font-size: {random.choice(['1rem', '1.2rem', '1.5rem', '1.8rem'])};
-            opacity: {random.uniform(0.6, 0.9)};
-        ">❄</div>
+            animation-delay: {random.uniform(0, 15)}s;
+            animation-duration: {random.uniform(30, 60)}s;
+            font-size: {random.choice(['2.5rem', '3rem', '3.5rem', '2.2rem'])};
+        ">❄️</div>
         """
     return effects_html
 
@@ -413,7 +379,7 @@ def main():
         st.markdown('<p style="font-size: 2rem; color: #1f2937; margin-bottom: 3rem; font-weight: 700;">Ho Ho Ho! Enter your name to discover who drew YOU!</p>', unsafe_allow_html=True)
         
         st.markdown(f"""
-        <div class="valid-names">
+        <div style="background: linear-gradient(145deg, #16a34a, #15803d); padding: 3.5rem; border-radius: 35px; margin: 3.5rem 0; color: #ffffff; font-size: 1.6rem; border: 5px solid rgba(255,255,255,0.9); box-shadow: 0 40px 100px rgba(22,163,74,0.6); font-weight: 700;">
             <strong>🎄 Valid Participants:</strong><br>
             <span style="font-size: 1.8rem;">{', '.join(PARTICIPANTS)}</span> 🎄
         </div>
@@ -501,4 +467,54 @@ def main():
                     """, unsafe_allow_html=True)
                 else:
                     st.markdown("""
-                    <div class="
+                    <div class="invalid-box">
+                        ❌ Invalid name or PIN combination!<br>
+                        Please check and try again. 🎅
+                    </div>
+                    """, unsafe_allow_html=True)
+            else:
+                st.error("Please enter both name and PIN!")
+        
+        st.markdown("""
+        <div class="status-card">
+            <strong style="font-size: 1.6rem;">ℹ️ How to use:</strong><br>
+            • Use the name & 4-digit PIN from your first draw<br>
+            • Each person can only draw <strong>ONCE</strong><br>
+            • Check status anytime before Christmas! 🎄✨
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with tab3:
+        st.markdown('<h1 class="title">📊 Room Statistics</h1>', unsafe_allow_html=True)
+        st.markdown(f'<p style="font-size: 2rem; color: #1f2937; margin-bottom: 2rem; font-weight: 700;">Room: <strong>{room_id}</strong> | Created: {room_data.get("created", "Unknown")[:10]}</p>', unsafe_allow_html=True)
+        
+        participants_data = room_data.get('participants_data', {})
+        drawn_count = sum(1 for data in participants_data.values() if data.get('drawn', False))
+        
+        col1, col2, col3 = st.columns(3)
+        col1.metric("🎅 Drawn", f"{drawn_count}/{len(PARTICIPANTS)}")
+        col2.metric("📋 Total Joins", len(participants_data))
+        col3.metric("🎁 Progress", f"{drawn_count/len(PARTICIPANTS)*100:.0f}%")
+        
+        if participants_data:
+            st.markdown("### Recent Activity")
+            recent = sorted(participants_data.items(), 
+                          key=lambda x: x[1].get('drawn_at', ''), 
+                          reverse=True)[:5]
+            for name, data in recent:
+                status = "✅ Drawn" if data.get('drawn') else "⏳ Pending"
+                pin_preview = data.get('pin', 'N/A')[:2] + "***" if data.get('pin') else "N/A"
+                st.write(f"**{name}** - {status} ({pin_preview})")
+        else:
+            st.info("👥 No participants have joined this room yet!")
+    
+    st.markdown('</div>', unsafe_allow_html=True)
+
+if __name__ == "__main__":
+    st.set_page_config(
+        page_title="🎅 Multi-Room Secret Santa",
+        page_icon="🎁",
+        layout="wide",
+        initial_sidebar_state="collapsed"
+    )
+    main()
