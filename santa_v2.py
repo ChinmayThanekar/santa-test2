@@ -233,20 +233,21 @@ css = """
     }
     
     .snowflake {
-        color: #ffffff !important;
-        text-shadow: 0 0 40px rgba(255,255,255,1) !important;
-        font-size: 3rem !important;
-        position: fixed;
-        top: -80px;
-        animation: fall linear infinite;
-        pointer-events: none;
-        z-index: 500;
+    color: #ffffff !important;              /* Pure white */
+    text-shadow: none !important;           /* No glow */
+    position: fixed;
+    top: -50px;                             /* Start higher */
+    animation: fall linear infinite;
+    pointer-events: none;
+    z-index: 200;                           /* Lower z-index */
+    opacity: 0.8 !important;
+}
+
+@keyframes fall {
+    to { 
+        transform: translateY(120vh) rotate(720deg);  /* Gentler spin */
     }
-    
-    @keyframes fall {
-        to { transform: translateY(150vh) rotate(1800deg); }
-    }
-</style>
+}
 """
 
 def load_database():
@@ -298,6 +299,7 @@ def create_christmas_effects():
         ("99%", "50%", "#16a34a"), ("50%", "99%", "#b91c1c")
     ]
     
+    # Christmas Lights (unchanged)
     for top, left, color in light_positions:
         effects_html += f"""
         <div class="light" style="
@@ -308,14 +310,16 @@ def create_christmas_effects():
         "></div>
         """
     
-    for i in range(150):
+    # ✅ OPTIMIZED SNOWFLAKES: 40 (was 150), smaller (1-1.8rem), pure white
+    for i in range(40):  # Reduced density: 40 snowflakes
         effects_html += f"""
         <div class="snowflake" style="
             left: {random.randint(0, 100)}vw;
-            animation-delay: {random.uniform(0, 15)}s;
-            animation-duration: {random.uniform(30, 60)}s;
-            font-size: {random.choice(['2.5rem', '3rem', '3.5rem', '2.2rem'])};
-        ">❄️</div>
+            animation-delay: {random.uniform(0, 20)}s;
+            animation-duration: {random.uniform(25, 50)}s;
+            font-size: {random.choice(['1rem', '1.2rem', '1.5rem', '1.8rem'])};
+            opacity: {random.uniform(0.6, 0.9)};
+        ">❄</div>
         """
     return effects_html
 
