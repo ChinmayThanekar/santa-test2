@@ -12,12 +12,9 @@ def generate_pin(name):
     return str(int(hashlib.md5(seed.encode()).hexdigest(), 16) % 10000).zfill(4)
 
 def is_valid_participant(name, participants=PARTICIPANTS):
-    """Check if name is valid participant (case-insensitive)"""
-    normalized = normalize_name(name)
-    return normalized in [p.lower() for p in participants]
+    return normalize_name(name) in [p.lower() for p in participants]
 
 def get_other_participants(name, participants=PARTICIPANTS):
-    """Get all participants except the given name (case-insensitive)"""
     normalized = normalize_name(name)
     return [n for n in participants if n.lower() != normalized]
 
@@ -28,3 +25,18 @@ def find_existing_participant(name, participants_data):
         if normalize_name(stored_name) == normalized:
             return stored_name, data
     return None, None
+
+def get_user_wishlist(name, participants_data):
+    """Get user's wishlist (case-insensitive)"""
+    existing_name, data = find_existing_participant(name, participants_data)
+    if existing_name:
+        return data.get('wishlist', [])
+    return []
+
+def update_user_wishlist(name, wishlist_items, participants_data):
+    """Update user's wishlist (case-insensitive)"""
+    existing_name, _ = find_existing_participant(name, participants_data)
+    if existing_name:
+        participants_data[existing_name]['wishlist'] = wishlist_items
+        return True
+    return False
