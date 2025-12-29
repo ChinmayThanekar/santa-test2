@@ -1,4 +1,4 @@
 PARTICIPANTS = [
-    "Alice", "Bob", "Charlie", "Diana", "Eve", 
+    "Chinmay", "Bob", "Charlie", "Diana", "Eve", 
     "Frank", "Grace", "Henry", "Ivy", "Jack"
 ]
