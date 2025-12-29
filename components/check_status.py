@@ -1,5 +1,5 @@
 import streamlit as st
-from utils.database import get_room_data
+from utils.database import get_room_data, update_room_data
 from utils.participants import find_existing_participant, get_user_wishlist, update_user_wishlist
 from datetime import datetime
 
@@ -53,7 +53,7 @@ def _handle_status_check(name, pin, room_id):
         </div>
         """, unsafe_allow_html=True)
         
-        # 🎁 WISHLIST SECTIONS (inline functions)
+        # 🎁 FIXED WISHLIST SECTIONS
         _render_wishlist_sections(name, pin, room_id, secret_santa_name)
         
     else:
@@ -66,7 +66,7 @@ def _handle_status_check(name, pin, room_id):
         """, unsafe_allow_html=True)
 
 def _render_wishlist_sections(name, pin, room_id, secret_santa_name):
-    """Inline wishlist rendering to avoid import issues"""
+    """Render wishlist sections with FIXED persistence"""
     st.markdown("🎁 **WISHLIST FEATURES**")
     
     col1, col2 = st.columns(2)
@@ -79,43 +79,59 @@ def _render_wishlist_sections(name, pin, room_id, secret_santa_name):
         st.markdown("### 👀 **Their Wishlist**")
         _render_their_wishlist(secret_santa_name, room_id)
 
+@st.cache_data(ttl=30)  # Cache for 30s to reduce DB calls
+def _get_cached_room_data(room_id):
+    """Helper to get fresh room data"""
+    return get_room_data(room_id)
+
 def _render_my_wishlist(name, pin, room_id):
-    """Render form to add/edit my wishlist"""
-    room_data = get_room_data(room_id)
-    participants_data = room_data.get('participants_data', {})
+    """Render form to add/edit my wishlist - FIXED PERSISTENCE"""
+    # 🆕 ALWAYS GET FRESH DATA
+    room_data = _get_cached_room_data(room_id)
+    participants_data = room_data['participants_data'].copy()  # 🆕 COPY to avoid reference issues
     
     existing_name, participant_data = find_existing_participant(name, participants_data)
     if not (existing_name and participant_data.get('pin') == pin):
         st.warning("🔐 Login first to edit your wishlist!")
         return
     
+    # 🆕 GET FRESH WISHLIST
     current_wishlist = get_user_wishlist(name, participants_data)
     
+    st.markdown("**Current wishlist:**")
+    if current_wishlist:
+        for i, item in enumerate(current_wishlist, 1):
+            st.write(f"  {i}. {item}")
+    else:
+        st.info("📭 No wishlist items yet!")
+    
+    # Wishlist input
     wishlist_input = st.text_area(
         "Add your gift wishlist (one item per line):",
         value="\n".join(current_wishlist),
-        height=150,
+        height=120,
         help="e.g., Coffee mug, Book, Chocolate, Scarf"
     )
     
-    if st.button("💾 **Update My Wishlist**", use_container_width=True):
+    if st.button("💾 **Save My Wishlist**", type="primary", use_container_width=True):
         new_wishlist = [item.strip() for item in wishlist_input.strip().split("\n") if item.strip()]
+        
+        # 🆕 CRITICAL: Update the COPIED data dict
         if update_user_wishlist(name, new_wishlist, participants_data):
-            update_room_data(room_id, {'participants_data': participants_data})
-            st.success("✅ Wishlist updated!")
+            # 🆕 PASS FULL ROOM DATA with updated participants_data
+            room_data['participants_data'] = participants_data
+            update_room_data(room_id, room_data)
+            st.success(f"✅ Wishlist updated! ({len(new_wishlist)} items)")
             st.rerun()
+        else:
+            st.error("❌ Failed to update wishlist!")
     
-    if current_wishlist:
-        st.markdown("**Your current wishlist:**")
-        for i, item in enumerate(current_wishlist, 1):
-            st.write(f"{i}. {item}")
-    else:
-        st.info("📭 No wishlist items yet!")
+    st.caption("💡 Items persist across sessions!")
 
 def _render_their_wishlist(secret_santa_name, room_id):
-    """Render secret santa's wishlist"""
-    room_data = get_room_data(room_id)
-    participants_data = room_data.get('participants_data', {})
+    """Render secret santa's wishlist - ALWAYS FRESH"""
+    room_data = _get_cached_room_data(room_id)
+    participants_data = room_data['participants_data']
     
     their_wishlist = get_user_wishlist(secret_santa_name, participants_data)
     
@@ -125,14 +141,17 @@ def _render_their_wishlist(secret_santa_name, room_id):
             st.markdown(f"""
             <div style='
                 background: linear-gradient(135deg, #fef3c7, #fde68a); 
-                padding: 1rem; 
+                padding: 1.2rem; 
                 border-radius: 15px; 
                 margin: 0.5rem 0; 
                 border-left: 5px solid #f59e0b;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.1);
             '>
-                <strong>{i}.</strong> {item}
+                <strong style='color: #b45309;'>{i}.</strong> 
+                <span style='color: #92400e; font-weight: 500;'>{item}</span>
             </div>
             """, unsafe_allow_html=True)
+        st.success(f"✅ Perfect gift ideas for {secret_santa_name}!")
     else:
         st.markdown(f"**{secret_santa_name}** has no wishlist yet 😅")
-        st.info("They need to login and add items first!")
+        st.info("👉 They need to login and add items first!")
