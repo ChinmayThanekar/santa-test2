@@ -19,43 +19,35 @@ def render_wishlist_section(name, pin, room_id, secret_santa_name):
     
     st.markdown("---")
 
-def _render_my_wishlist(name, pin, room_id):
-    """Render form to add/edit my wishlist"""
+def _render_my_wishlist(name, pin, room_id, existing_name):
     room_data = get_room_data(room_id)
-    participants_data = room_data.get('participants_data', {})
+    current_wishlist = room_data['participants_data'].get(existing_name, {}).get('wishlist', [])
     
-    # Check if user is authenticated
-    existing_name, participant_data = find_existing_participant(name, participants_data)
-    if not (existing_name and participant_data.get('pin') == pin):
-        st.warning("🔐 Login first to edit your wishlist!")
-        return
+    st.markdown(f"**Current: {len(current_wishlist)} items**")
+    if current_wishlist:
+        for i, item in enumerate(current_wishlist, 1):
+            st.success(f"{i}. {item}")
+    else:
+        st.info("📭 No items yet!")
     
-    current_wishlist = get_user_wishlist(name, participants_data)
-    
-    # Wishlist input
     wishlist_input = st.text_area(
-        "Add your gift wishlist (one item per line):",
+        label="Add wishlist (one per line):",
         value="\n".join(current_wishlist),
-        height=150,
-        help="e.g., Coffee mug, Book, Chocolate, Scarf"
+        height=120,
+        placeholder="Coffee mug\nBook\nChocolates"
     )
     
-    if st.button("💾 **Update My Wishlist**", use_container_width=True):
-        new_wishlist = [item.strip() for item in wishlist_input.strip().split("\n") if item.strip()]
-        if update_user_wishlist(name, new_wishlist, participants_data):
-            update_room_data(room_id, {'participants_data': participants_data})
-            st.success("✅ Wishlist updated!")
-            st.rerun()
-        else:
-            st.error("❌ Failed to update wishlist!")
-    
-    # Display current wishlist
-    if current_wishlist:
-        st.markdown("**Your current wishlist:**")
-        for i, item in enumerate(current_wishlist, 1):
-            st.write(f"{i}. {item}")
-    else:
-        st.info("📭 No wishlist items yet!")
+    if st.button("💾 **SAVE WISHLIST**", type="primary", use_container_width=True):
+        new_items = [item.strip() for item in wishlist_input.strip().split("\n") if item.strip()]
+        
+        room_data = get_room_data(room_id)
+        room_data['participants_data'][existing_name]['wishlist'] = new_items
+        from utils.database import save_database  # Direct save
+        save_database(room_data)
+        
+        st.success(f"✅ SAVED {len(new_items)} items!")
+        st.balloons()
+        st.rerun()
 
 def _render_their_wishlist(secret_santa_name, room_id):
     """Render secret santa's wishlist"""
