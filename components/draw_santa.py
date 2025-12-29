@@ -28,7 +28,7 @@ def render_draw_tab(room_id):
         _show_reveal(session_key)
 
 def _handle_draw(name, room_id, session_key):
-    """Handle secret santa draw logic"""
+    """Handle secret santa draw logic (CASE-INSENSITIVE)"""
     if not name.strip():
         st.error("🎄 Please enter your name first!")
         return
@@ -45,21 +45,26 @@ def _handle_draw(name, room_id, session_key):
     room_data = get_room_data(room_id)
     participants_data = room_data.get('participants_data', {})
     
-    if name in participants_data and participants_data[name].get('drawn', False):
-        st.markdown("""
+    # 🔍 CASE-INSENSITIVE CHECK: Find existing participant
+    existing_name, existing_data = find_existing_participant(name, participants_data)
+    
+    if existing_name and existing_data.get('drawn', False):
+        st.markdown(f"""
         <div class="invalid-box">
-            ❌ You have already drawn your Secret Santa!<br>
+            ❌ <strong>{name}</strong> (aka <strong>{existing_name}</strong>) has already drawn!<br>
             Go to <strong>Check Status</strong> tab with your PIN! 🎅
         </div>
         """, unsafe_allow_html=True)
         return
     
-    # Draw secret santa
+    # Draw secret santa (use original casing for display)
     other_names = get_other_participants(name)
     secret_santa = random.choice(other_names)
     pin = generate_pin(name)
     
-    participants_data[name] = {
+    # Store with ORIGINAL casing but check case-insensitively
+    display_name = name.strip()  # Keep user's original casing
+    participants_data[display_name] = {
         'secret_santa': secret_santa,
         'pin': pin,
         'drawn': True,
@@ -69,7 +74,7 @@ def _handle_draw(name, room_id, session_key):
     update_room_data(room_id, {'participants_data': participants_data})
     
     # Update session state
-    st.session_state[f'{session_key}_user_name'] = name.strip()
+    st.session_state[f'{session_key}_user_name'] = display_name
     st.session_state[f'{session_key}_secret_santa'] = secret_santa
     st.session_state[f'{session_key}_pin_generated'] = pin
     st.session_state[f'{session_key}_revealed'] = True
