@@ -19,12 +19,23 @@ def get_other_participants(name, participants=PARTICIPANTS):
     return [n for n in participants if n.lower() != normalized]
 
 def find_existing_participant(name, participants_data):
-    """Find existing participant data by normalized name"""
+    """Find existing participant data by normalized name - WITH DEBUG"""
     normalized = normalize_name(name)
+    print(f"🔍 SEARCHING for '{normalized}' in DB...")
+    
+    all_names = list(participants_data.keys())
+    print(f"📋 DB has keys: {all_names}")
+    
     for stored_name, data in participants_data.items():
-        if normalize_name(stored_name) == normalized:
+        stored_normalized = normalize_name(stored_name)
+        print(f"  Checking '{stored_name}' -> '{stored_normalized}'")
+        if stored_normalized == normalized:
+            print(f"✅ MATCH FOUND: '{stored_name}' == '{name}'")
             return stored_name, data
+    
+    print(f"❌ NO MATCH for '{normalized}'")
     return None, None
+
 
 def get_user_wishlist(name, participants_data):
     """Get user's wishlist (case-insensitive)"""
