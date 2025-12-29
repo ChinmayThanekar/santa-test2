@@ -2,7 +2,7 @@ import random  # Add this
 from datetime import datetime  # Add this
 import streamlit as st
 from utils.database import get_room_data, update_room_data
-from utils.participants import is_valid_participant, generate_pin, get_other_participants
+from utils.participants import is_valid_participant, generate_pin, get_other_participants,find_existing_participant
 from config.participants import PARTICIPANTS
 
 def render_draw_tab(room_id):
