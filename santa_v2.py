@@ -9,6 +9,7 @@ from components.stats_display import render_stats_tab
 from utils.session import init_room_session
 from utils.database import ensure_data_dir  # Only this import needed
 from assets.styles import load_css, create_effects
+from components.wishlist import render_wishlist_section  # Optional, already handled in check_status
 
 # Initialize on startup
 ensure_data_dir()
