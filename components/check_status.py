@@ -28,27 +28,32 @@ def render_status_tab(room_id):
     """, unsafe_allow_html=True)
 
 def _handle_status_check(name, pin, room_id):
-    """Handle status check logic"""
+    """Handle status check logic (CASE-INSENSITIVE)"""
     if not name or not pin:
         st.error("Please enter both name and PIN!")
         return
     
     room_data = get_room_data(room_id)
-    participant_data = room_data.get('participants_data', {}).get(name, {})
+    participants_data = room_data.get('participants_data', {})
     
-    if participant_data.get('drawn', False) and participant_data.get('pin') == pin:
+    # 🔍 CASE-INSENSITIVE SEARCH for participant
+    existing_name, participant_data = find_existing_participant(name, participants_data)
+    
+    if existing_name and participant_data.get('drawn', False) and participant_data.get('pin') == pin:
         st.success("✅ Valid login!")
         st.markdown(f"""
         <div class="status-card">
             <h3 style="font-size: 2.5rem; margin-bottom: 2rem;">🎅 Your Assignment:</h3>
             <strong style="font-size: 5rem; color: #b91c1c;">{participant_data['secret_santa']}</strong>
             <p style="font-size: 2rem;">🎁 Buy a gift for {participant_data['secret_santa']}!</p>
+            <p style="font-size: 1.4rem; margin-top: 1rem;">(Logged in as: <strong>{existing_name}</strong>)</p>
         </div>
         """, unsafe_allow_html=True)
     else:
         st.markdown("""
         <div class="invalid-box">
             ❌ Invalid name or PIN combination!<br>
+            <strong>Names are case-insensitive:</strong> "Alice" = "alice"<br>
             Please check and try again. 🎅
         </div>
         """, unsafe_allow_html=True)
