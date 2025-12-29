@@ -40,3 +40,4 @@ def update_user_wishlist(name, wishlist_items, participants_data):
         participants_data[existing_name]['wishlist'] = wishlist_items
         return True
     return False
+ 
