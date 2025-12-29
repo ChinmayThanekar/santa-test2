@@ -1,6 +1,6 @@
 import streamlit as st
 from utils.database import get_room_data
-from utils.participants import is_valid_participant
+from utils.participants import is_valid_participant,find_existing_participant
 from datetime import datetime
 
 def render_status_tab(room_id):
