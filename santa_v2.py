@@ -67,11 +67,20 @@ css = """
         border: none !important;
     }
     
-    /* FORCE ALL Streamlit text overrides */
-    *, *::before, *::after {
-        color: #ffffff !important;
-        text-shadow: 2px 2px 8px rgba(0,0,0,0.8) !important;
-    }
+    /* ✅ REPLACE the universal selector with these SPECIFIC overrides */
+[data-testid="stAppViewContainer"], 
+.main .block-container,
+.stApp > header {
+    color: #ffffff !important;
+}
+
+[data-testid="stMarkdownContainer"] p, 
+h1, h2, h3, .stMarkdown {
+    color: #ffffff !important;
+    text-shadow: 2px 2px 8px rgba(0,0,0,0.8) !important;
+}
+
+
     
     [data-testid="stAppViewContainer"] > div > div > div {
         background: transparent !important;
