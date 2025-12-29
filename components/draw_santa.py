@@ -65,11 +65,12 @@ def _handle_draw(name, room_id, session_key):
     # Store with ORIGINAL casing but check case-insensitively
     display_name = name.strip()  # Keep user's original casing
     participants_data[display_name] = {
-        'secret_santa': secret_santa,
-        'pin': pin,
-        'drawn': True,
-        'drawn_at': datetime.now().isoformat()
-    }
+    'secret_santa': secret_santa,
+    'pin': pin,
+    'drawn': True,
+    'drawn_at': datetime.now().isoformat(),
+    'wishlist': []  # 🆕 WISHLIST INITIALIZED!
+}
     
     update_room_data(room_id, {'participants_data': participants_data})
     
