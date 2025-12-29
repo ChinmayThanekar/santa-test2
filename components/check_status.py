@@ -1,29 +1,18 @@
 import streamlit as st
 from utils.database import get_room_data, update_room_data
-from utils.participants import find_existing_participant, get_user_wishlist, update_user_wishlist
+from utils.participants import find_existing_participant, get_user_wishlist
 from datetime import datetime
-import json
 
 def render_status_tab(room_id):
-    """Render Check Status tab with Wishlist features"""
     st.markdown('<h1 class="title">📋 Status Check</h1>', unsafe_allow_html=True)
     st.markdown('<p style="font-size: 2rem; color: #1f2937; margin-bottom: 3rem; font-weight: 700;">Check your Secret Santa + Manage Wishlists! 🎁</p>', unsafe_allow_html=True)
     
     session_key = f"room_{room_id}"
     col1, col2 = st.columns(2)
     with col1:
-        name = st.text_input(
-            label="👤 Enter your name:",
-            placeholder="Your name", 
-            key=f"status_name_{session_key}"
-        )
+        name = st.text_input(label="👤 Enter your name:", placeholder="Your name", key=f"status_name_{session_key}")
     with col2:
-        pin = st.text_input(
-            label="🔑 Enter your PIN:",
-            placeholder="4-digit PIN", 
-            type="password", 
-            key=f"status_pin_{session_key}"
-        )
+        pin = st.text_input(label="🔑 Enter your PIN:", placeholder="4-digit PIN", type="password", key=f"status_pin_{session_key}")
     
     if st.button("✅ **Check Status & Wishlist**", key=f"check_status_{session_key}"):
         _handle_status_check(name, pin, room_id)
@@ -38,7 +27,6 @@ def render_status_tab(room_id):
     """, unsafe_allow_html=True)
 
 def _handle_status_check(name, pin, room_id):
-    """Handle status check + show wishlists"""
     if not name or not pin:
         st.error("Please enter both name and PIN!")
         return
@@ -61,7 +49,7 @@ def _handle_status_check(name, pin, room_id):
         </div>
         """, unsafe_allow_html=True)
         
-        _render_wishlist_sections(name, pin, room_id, secret_santa_name)
+        _render_wishlist_sections(name, pin, room_id, secret_santa_name, existing_name)
     else:
         st.markdown("""
         <div class="invalid-box">
@@ -71,81 +59,75 @@ def _handle_status_check(name, pin, room_id):
         </div>
         """, unsafe_allow_html=True)
 
-def _render_wishlist_sections(name, pin, room_id, secret_santa_name):
-    """Render wishlist sections - FIXED PERSISTENCE"""
+def _render_wishlist_sections(name, pin, room_id, secret_santa_name, existing_name):
     st.markdown("🎁 **WISHLIST FEATURES**")
     col1, col2 = st.columns(2)
     
     with col1:
         st.markdown("### 📝 **My Wishlist**")
-        _render_my_wishlist(name, pin, room_id)
+        _render_my_wishlist(name, pin, room_id, existing_name)
     with col2:
         st.markdown("### 👀 **Their Wishlist**")
         _render_their_wishlist(secret_santa_name, room_id)
 
-def _render_my_wishlist(name, pin, room_id):
-    """🔧 FIXED: Direct DB update without copy issues"""
-    # 1. Get FRESH room data
+def _render_my_wishlist(name, pin, room_id, existing_name):
+    """🆕 SIMPLIFIED: NO SESSION STATE, DIRECT DB"""
+    
+    # DEBUG: Show current DB state
     room_data = get_room_data(room_id)
-    participants_data = room_data['participants_data']
+    current_db_wishlist = room_data['participants_data'].get(existing_name, {}).get('wishlist', [])
+    st.caption(f"🔍 DEBUG: DB has {len(current_db_wishlist)} items for {existing_name}")
     
-    # 2. Verify auth
-    existing_name, participant_data = find_existing_participant(name, participants_data)
-    if not (existing_name and participant_data.get('pin') == pin):
-        st.warning("🔐 Login first to edit your wishlist!")
-        return
-    
-    # 3. Session state for wishlist input (PREVENTS LOSS ON RERUN)
-    wishlist_key = f"wishlist_{room_id}_{existing_name}"
-    if wishlist_key not in st.session_state:
-        st.session_state[wishlist_key] = "\n".join(get_user_wishlist(name, participants_data))
-    
-    # 4. Show current wishlist
-    current_wishlist = get_user_wishlist(name, participants_data)
-    if current_wishlist:
-        with st.container():
-            st.markdown("**✅ Current items:**")
-            for i, item in enumerate(current_wishlist, 1):
-                st.success(f"{i}. {item}")
+    # Show current wishlist from DB
+    if current_db_wishlist:
+        st.markdown("**✅ Current wishlist:**")
+        for i, item in enumerate(current_db_wishlist, 1):
+            st.success(f"{i}. {item}")
     else:
         st.info("📭 No wishlist items yet!")
     
-    # 5. Input with session state
+    # SIMPLE TEXT AREA - NO SESSION STATE
     wishlist_input = st.text_area(
-        label="Add your gift wishlist (one per line):",
-        value=st.session_state[wishlist_key],
+        label="🎁 Add wishlist items (one per line):",
         height=120,
-        key=f"wishlist_input_{room_id}_{existing_name}",
-        help="Coffee mug\nBook\nChocolate"
+        placeholder="Coffee mug\nBook\nChocolate\nScarf",
+        key=f"wl_input_{room_id}_{existing_name}_{hash(name+pin)}"  # Unique key
     )
     
-    # 6. Update session state when input changes
-    st.session_state[wishlist_key] = wishlist_input
-    
-    # 7. Save button - DIRECT DB UPDATE
-    if st.button("💾 **Save Wishlist**", type="primary", use_container_width=True, key=f"save_wl_{room_id}_{existing_name}"):
-        new_wishlist = [item.strip() for item in wishlist_input.strip().split("\n") if item.strip()]
+    # 🆕 SAVE BUTTON - IMMEDIATE DB UPDATE
+    if st.button(f"💾 **SAVE {len(wishlist_input.strip().splitlines())} items**", type="primary"):
+        # Parse new wishlist
+        new_items = [item.strip() for item in wishlist_input.strip().splitlines() if item.strip()]
         
-        # 🆕 DIRECT UPDATE - No copy/reference mess
-        room_data = get_room_data(room_id)  # Fresh copy
-        participants_data = room_data['participants_data']
+        # 🆕 DIRECT DB WRITE - NO COPIES
+        room_data = get_room_data(room_id)
+        room_data['participants_data'][existing_name]['wishlist'] = new_items
         
-        # Update specific user
-        existing_name, _ = find_existing_participant(name, participants_data)
-        participants_data[existing_name]['wishlist'] = new_wishlist
+        # 🆕 FORCE SAVE
+        from utils.database import save_database
+        save_database(room_data)
         
-        # Save FULL room data
-        room_data['participants_data'] = participants_data
-        update_room_data(room_id, room_data)
+        st.balloons()
+        st.success(f"✅ SAVED {len(new_items)} items to DATABASE!")
         
-        st.success(f"✅ Saved {len(new_wishlist)} items! 🎁")
-        st.rerun()
+        # 🆕 RELOAD TO SHOW UPDATE
+        room_data = get_room_data(room_id)
+        updated_wishlist = room_data['participants_data'][existing_name]['wishlist']
+        st.markdown(f"**🔥 UPDATED DB:** {len(updated_wishlist)} items")
+        for i, item in enumerate(updated_wishlist, 1):
+            st.success(f"{i}. {item}")
 
 def _render_their_wishlist(secret_santa_name, room_id):
-    """Their wishlist - always fresh"""
     room_data = get_room_data(room_id)
     participants_data = room_data['participants_data']
-    their_wishlist = get_user_wishlist(secret_santa_name, participants_data)
+    
+    # Find their data (case-insensitive)
+    for stored_name, data in participants_data.items():
+        if stored_name.lower() == secret_santa_name.lower():
+            their_wishlist = data.get('wishlist', [])
+            break
+    else:
+        their_wishlist = []
     
     if their_wishlist:
         st.markdown(f"**{secret_santa_name}'s wishlist:** 🎁")
@@ -154,13 +136,10 @@ def _render_their_wishlist(secret_santa_name, room_id):
             <div style='
                 background: linear-gradient(135deg, #fef3c7, #fde68a); 
                 padding: 1.2rem; border-radius: 15px; margin: 0.5rem 0; 
-                border-left: 5px solid #f59e0b; box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+                border-left: 5px solid #f59e0b;
             '>
-                <strong style='color: #b45309;'>{i}.</strong> 
-                <span style='color: #92400e; font-weight: 500;'>{item}</span>
+                <strong style='color: #b45309;'>{i}.</strong> {item}
             </div>
             """, unsafe_allow_html=True)
-        st.balloons()  # 🎈 Celebration!
     else:
-        st.markdown(f"**{secret_santa_name}** has no wishlist yet 😅")
-        st.info("They need to add items first!")
+        st.markdown(f"**{secret_santa_name}** has no wishlist yet")
