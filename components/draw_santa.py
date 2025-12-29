@@ -4,7 +4,7 @@ import streamlit as st
 from utils.database import get_room_data, update_room_data
 from utils.participants import is_valid_participant, generate_pin, get_other_participants,find_existing_participant
 from config.participants import PARTICIPANTS
-
+ 
 def render_draw_tab(room_id):
     """Render Draw Secret Santa tab"""
     st.markdown('<h1 class="title">🎅 Secret Santa 🎁</h1>', unsafe_allow_html=True)

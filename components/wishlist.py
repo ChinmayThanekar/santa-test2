@@ -31,7 +31,7 @@ def _render_my_wishlist(name, pin, room_id):
         return
     
     current_wishlist = get_user_wishlist(name, participants_data)
-    
+     
     # Wishlist input
     wishlist_input = st.text_area(
         "Add your gift wishlist (one item per line):",
