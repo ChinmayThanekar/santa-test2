@@ -3,7 +3,7 @@ from utils.database import get_room_data
 from utils.participants import find_existing_participant
 from components.wishlist import render_wishlist_section
 from datetime import datetime
-
+ 
 def render_status_tab(room_id):
     """Render Check Status tab with Wishlist features"""
     st.markdown('<h1 class="title">📋 Status Check</h1>', unsafe_allow_html=True)
